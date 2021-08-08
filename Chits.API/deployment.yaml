@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chitsapi-deployment
+  labels:
+   app: chitsapi
+spec:
+  replicas: 2
+  selector:
+   matchLabels:
+    app: chitsapi
+  template:
+    metadata:
+      labels:
+        app: chitsapi
+    spec:
+      containers:
+        - name: chitsapi
+          image: sandeepboda/chitsapi:v1
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 80
+          readinessProbe:
+            httpGet:
+              path: /health/live
+              port: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chitesapi-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: chitsapi
+  ports:
+    - port: 8080 # use any number here
+      targetPort: 80
+  
